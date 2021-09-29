@@ -33,13 +33,17 @@ public class StatsAspect {
 		System.out.printf("Stats After the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		UUID secretId = (UUID)result;
 		String creator = joinPoint.getArgs()[0].toString();
+		String secretContent = joinPoint.getArgs()[1].toString();
 		// add secret creator
 		SecretStatsImpl.secretOwnerMap.put(secretId, creator);
 		// add creator to secretAllowReadMap and secretReadMap
-		Set<String> allowReadSet = new HashSet<>();
-		allowReadSet.add(creator);
-		SecretStatsImpl.secretAllowReadMap.put(secretId, allowReadSet);
-		SecretStatsImpl.secretReadMap.put(secretId, allowReadSet);
+		SecretStatsImpl.secretAllowReadMap.computeIfAbsent(secretId, v -> new HashSet<>()).add(creator);
+		SecretStatsImpl.secretReadMap.computeIfAbsent(secretId, v -> new HashSet<>()).add(creator);
+		// update length of the longest secret
+		int contentLen = secretContent.length();
+		if ( contentLen > SecretStatsImpl.lengthOfLongestSecret) {
+			SecretStatsImpl.lengthOfLongestSecret = contentLen;
+		}
 	}
 
 	@AfterReturning(
@@ -51,38 +55,44 @@ public class StatsAspect {
 		String userId = (String) args[0];
 		UUID secretId = (UUID) args[1];
 		// add user to secretReadMap
-		Set<String> readerSet = SecretStatsImpl.secretAllowReadMap.get(secretId);
-		readerSet.add(userId);
-		SecretStatsImpl.secretReadMap.put(secretId,readerSet);
+		SecretStatsImpl.secretReadMap.get(secretId).add(userId);
 	}
 
-	@After("execution(public * edu.sjsu.cmpe275.aop.SecretService.shareSecret(..))")
+	@AfterReturning( pointcut = "execution(public * edu.sjsu.cmpe275.aop.SecretService.shareSecret(..))")
 	public void afterShareSecret(JoinPoint joinPoint) {
 		System.out.printf("Stats After the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		String targetUserId = (String) args[2];
 		UUID secretId = (UUID) args[1];
-		// add user to secretReadMap
-		Set<String> allowReadSet = SecretStatsImpl.secretAllowReadMap.get(secretId);
-		allowReadSet.add(targetUserId);
-		SecretStatsImpl.secretReadMap.put(secretId, allowReadSet);
+		String fromUser = (String) args[0];
+
+		// add user to secretAllowReadMap
+		SecretStatsImpl.secretAllowReadMap.get(secretId).add(targetUserId);
+
+		// update userInboundShareMap of target user
+		String shareInfo = fromUser + "+" + secretId;
+		SecretStatsImpl.userInboundShareMap.computeIfAbsent(targetUserId, v-> new HashSet<>()).add(shareInfo);
+
+		// update userOutboundReshareMap for the fromUser
+		if (SecretStatsImpl.secretOwnerMap.get(secretId) != fromUser) {
+			String reshareInfo = targetUserId + "+" + secretId;
+			SecretStatsImpl.userOutReshareMap.computeIfAbsent(fromUser, v -> new HashSet<>()).add(reshareInfo);
+		}
 	}
 
-	@After("execution(public * edu.sjsu.cmpe275.aop.SecretService.unshareSecret(..))")
+	@AfterReturning( pointcut = "execution(public * edu.sjsu.cmpe275.aop.SecretService.unshareSecret(..))")
 	public void afterUnshareSecret(JoinPoint joinPoint) {
 		System.out.printf("Stats After the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		String targetUserId = (String) args[2];
 		UUID secretId = (UUID) args[1];
-		// add user to secretReadMap
-		Set<String> allowReadSet = SecretStatsImpl.secretAllowReadMap.get(secretId);
-		allowReadSet.remove(targetUserId);
-		SecretStatsImpl.secretReadMap.put(secretId, allowReadSet);
+		// remove user from secretAllowReadMap
+		SecretStatsImpl.secretAllowReadMap.get(secretId).remove(targetUserId);
 	}
 	
-	@Before("execution(public void edu.sjsu.cmpe275.aop.SecretService.*(..))")
-	public void dummyBeforeAdvice(JoinPoint joinPoint) {
-		System.out.printf("Doing stats before the executuion of the metohd %s\n", joinPoint.getSignature().getName());
-	}
+//	@Before("execution(public void edu.sjsu.cmpe275.aop.SecretService.*(..))")
+//	public void dummyBeforeAdvice(JoinPoint joinPoint) {
+//		System.out.printf("Doing stats before the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//	}
 	
 }

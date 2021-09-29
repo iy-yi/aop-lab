@@ -10,14 +10,16 @@ public class SecretStatsImpl implements SecretStats {
 	public static Map<UUID, String> secretOwnerMap = new HashMap<>();
 	// un-shared user is removed
 	public static Map<UUID, Set<String>> secretAllowReadMap = new HashMap<>();
+	// un-shared user is not removed. include secret owner.
 	public static Map<UUID, Set<String>> secretReadMap = new HashMap<>();
 
-	// return getBestKnownSecret(); not count un-sharing?
-	public static Map<UUID, Set<String>> secretSharedMap = new HashMap<UUID, Set<String>>();
-	// Map<user, UUID+sharedFrom>
-	public static Map<String, Set<String>> userInboundSecretMap = new HashMap<>();
-	// Map<user, UUID+sharedTo>
-	public static Map<String, Set<String>> userOutboundSecretMap = new HashMap<>();
+	// stats
+	public static int lengthOfLongestSecret = 0;
+	// Map<user, sharedFrom+UUID>
+	public static Map<String, Set<String>> userInboundShareMap = new HashMap<>();
+	// Map<user, sharedTo+UUID>
+	public static Map<String, Set<String>> userOutReshareMap = new HashMap<>();
+
 
 	@Override
 	public void resetStatsAndSystem() {
@@ -27,26 +29,57 @@ public class SecretStatsImpl implements SecretStats {
 
 	@Override
 	public int getLengthOfLongestSecret() {
-		// TODO Auto-generated method stub
-		return 0;
+		return lengthOfLongestSecret;
 	}
 
 	@Override
 	public String getMostTrustedUser() {
-		// TODO Auto-generated method stub
-		return null;
+		String mostTrustedUser = null;
+		int mostInboundShareCount = 0;
+		for (String user: userInboundShareMap.keySet()) {
+			Set<String> inboundSet = userInboundShareMap.get(user);
+			if ((inboundSet.size() > mostInboundShareCount) || (inboundSet.size() == mostInboundShareCount
+					&& user.compareToIgnoreCase(mostTrustedUser) < 0)) {
+				mostTrustedUser = user;
+				mostInboundShareCount = inboundSet.size();
+			}
+		}
+		System.out.println("Inbound share count: " + mostInboundShareCount);
+		return mostTrustedUser;
 	}
 
 	@Override
 	public String getWorstSecretKeeper() {
-		// TODO Auto-generated method stub
-		return null;
+		String worstSecretKeeper = null;
+		double highestLeakScore = -1;
+		for (String user: userInboundShareMap.keySet()) {
+			int inboundCount = userInboundShareMap.get(user).size();
+			int outboundCount = userOutReshareMap.containsKey(user) ? userOutReshareMap.get(user).size() : 0;
+			double leakScore = outboundCount * 1.0 / inboundCount;
+			if (leakScore > highestLeakScore || (leakScore == highestLeakScore
+					&& user.compareToIgnoreCase(worstSecretKeeper) < 0)) {
+				worstSecretKeeper = user;
+				highestLeakScore = leakScore;
+			}
+		}
+		System.out.println("Highest leak score: " + highestLeakScore);
+		return worstSecretKeeper;
 	}
 
 	@Override
 	public UUID getBestKnownSecret() {
-		// TODO Auto-generated method stub
-		return null;
+		UUID bestKnownSecret = null;
+		int highestReadCount = 0;
+		for (UUID secret: secretReadMap.keySet()) {
+			int readCount = secretReadMap.get(secret).size();
+			if (readCount > 1 && readCount > highestReadCount) {
+				highestReadCount = readCount;
+				bestKnownSecret = secret;
+			}
+		}
+		highestReadCount--;	// minus the creator
+		System.out.println("Highest read count: " + highestReadCount);
+		return bestKnownSecret;
 	}
     
 }
