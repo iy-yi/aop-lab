@@ -23,10 +23,10 @@ public class ValidationAspect {
 	public void validCreateSecret(JoinPoint joinPoint) {
 		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
-		if (args[0] == null) {
-			throw new IllegalArgumentException("NULL userID");
+		if (args[0] == null || args[0].toString().length() == 0) {
+			throw new IllegalArgumentException("Invalid userID");
 		}
-		if (args[1] == null || (args[1].toString().length() > 128)) {
+		if (args[1] == null || (args[1].toString().length() > 128) || args[1].toString().length() == 0) {
 			throw new IllegalArgumentException("Invalid secretContent");
 		}
 	}
@@ -36,8 +36,8 @@ public class ValidationAspect {
 		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		for (Object arg: args) {
-			if (arg == null) {
-				throw new IllegalArgumentException("NULL argument");
+			if (arg == null || arg.toString().length() == 0) {
+				throw new IllegalArgumentException("NULL or empty argument");
 			}
 		}
 	}
@@ -47,7 +47,7 @@ public class ValidationAspect {
 		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		for (Object arg: args) {
-			if (arg == null) {
+			if (arg == null || arg.toString().length() == 0) {
 				throw new IllegalArgumentException("NULL argument");
 			}
 		}
@@ -61,7 +61,7 @@ public class ValidationAspect {
 		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		for (Object arg: args) {
-			if (arg == null) {
+			if (arg == null || arg.toString().length() == 0) {
 				throw new IllegalArgumentException("NULL argument");
 			}
 		}

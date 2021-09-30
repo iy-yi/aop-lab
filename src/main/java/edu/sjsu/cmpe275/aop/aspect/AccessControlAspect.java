@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Aspect
-@Order(1)
+@Order(2)
 public class AccessControlAspect {
     /***
      * Following is a dummy implementation of this aspect.
@@ -54,10 +54,14 @@ public class AccessControlAspect {
 		Object[] args = joinPoint.getArgs();
 		String userId = (String) args[0];
 		UUID secretId = (UUID) args[1];
+		String targetUserId = (String) args[2];
 
 		if (!SecretStatsImpl.secretOwnerMap.containsKey(secretId) ||
 				SecretStatsImpl.secretOwnerMap.get(secretId) != userId) {
 			throw new NotAuthorizedException("Not Authorized to share");
+		}
+		if (!SecretStatsImpl.secretAllowReadMap.get(secretId).contains(targetUserId)) {
+			throw new NotAuthorizedException("User is not shared");
 		}
 	}
 }

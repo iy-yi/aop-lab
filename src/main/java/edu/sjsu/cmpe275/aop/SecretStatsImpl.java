@@ -13,7 +13,7 @@ public class SecretStatsImpl implements SecretStats {
 	// un-shared user is not removed. include secret owner.
 	public static Map<UUID, Set<String>> secretReadMap = new HashMap<>();
 
-	// stats
+	// for stats
 	public static int lengthOfLongestSecret = 0;
 	// Map<user, sharedFrom+UUID>
 	public static Map<String, Set<String>> userInboundShareMap = new HashMap<>();
@@ -23,7 +23,23 @@ public class SecretStatsImpl implements SecretStats {
 
 	@Override
 	public void resetStatsAndSystem() {
-		// TODO Auto-generated method stub
+		if (!secretOwnerMap.isEmpty()) {
+			secretOwnerMap.clear();
+		}
+		if (!secretAllowReadMap.isEmpty()) {
+			secretAllowReadMap.clear();
+		}
+		if (!secretReadMap.isEmpty()) {
+			secretReadMap.clear();
+		}
+		lengthOfLongestSecret = 0;
+		if (!userInboundShareMap.isEmpty()) {
+			userInboundShareMap.clear();
+		}
+		if (!userOutReshareMap.isEmpty()) {
+			userOutReshareMap.clear();
+		}
+		//TODO: clear secrets Map in SecretServiceImpl?
 		
 	}
 
