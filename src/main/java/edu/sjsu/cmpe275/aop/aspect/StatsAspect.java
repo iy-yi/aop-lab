@@ -1,26 +1,19 @@
 package edu.sjsu.cmpe275.aop.aspect;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 
 import edu.sjsu.cmpe275.aop.SecretStatsImpl;
 
 import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Aspect
 @Order(0)
 public class StatsAspect {
-    /***
-     * Following is a dummy implementation of this aspect.
-     * You are expected to provide an actual implementation based on the requirements, including adding/removing advices as needed.
-     */
 
 	@Autowired SecretStatsImpl stats;
 

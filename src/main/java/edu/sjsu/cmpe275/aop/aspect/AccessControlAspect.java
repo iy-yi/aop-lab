@@ -13,10 +13,6 @@ import java.util.UUID;
 @Aspect
 @Order(2)
 public class AccessControlAspect {
-    /***
-     * Following is a dummy implementation of this aspect.
-     * You are expected to provide an actual implementation based on the requirements, including adding/removing advices as needed.
-     */
 
 	@Before("execution(public * edu.sjsu.cmpe275.aop.SecretService.readSecret(..))")
 	public void readAccessCheck(JoinPoint joinPoint) {

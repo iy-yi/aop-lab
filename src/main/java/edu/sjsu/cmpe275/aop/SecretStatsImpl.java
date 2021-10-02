@@ -3,10 +3,7 @@ package edu.sjsu.cmpe275.aop;
 import java.util.*;
 
 public class SecretStatsImpl implements SecretStats {
-    /***
-     * This is a dummy implementation only.
-     * You are expected to provide an actual implementation based on the requirements.
-     */
+
 	public static Map<UUID, String> secretOwnerMap = new HashMap<>();
 	// un-shared user is removed
 	public static Map<UUID, Set<String>> secretAllowReadMap = new HashMap<>();
