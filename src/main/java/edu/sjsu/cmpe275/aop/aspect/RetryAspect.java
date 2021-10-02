@@ -18,7 +18,7 @@ public class RetryAspect {
 
 	@Around("execution(public * edu.sjsu.cmpe275.aop.SecretService.*(..))")
 	public Object retryAround(ProceedingJoinPoint joinPoint) throws Throwable {
-		System.out.printf("Retry aspect prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Retry aspect prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		IOException exception = null;
 
 		for (int i = 1; i <= MAX_TRIES; i++) {

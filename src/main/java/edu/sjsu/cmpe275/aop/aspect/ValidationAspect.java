@@ -21,7 +21,7 @@ public class ValidationAspect {
 
 	@Before("execution(public * edu.sjsu.cmpe275.aop.SecretService.createSecret(..))")
 	public void validCreateSecret(JoinPoint joinPoint) {
-		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		if (args[0] == null || args[0].toString().length() == 0) {
 			throw new IllegalArgumentException("Invalid userID");
@@ -33,7 +33,7 @@ public class ValidationAspect {
 
 	@Before("execution(public * edu.sjsu.cmpe275.aop.SecretService.readSecret(..))")
 	public void validReadSecret(JoinPoint joinPoint) {
-		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		for (Object arg: args) {
 			if (arg == null || arg.toString().length() == 0) {
@@ -44,7 +44,7 @@ public class ValidationAspect {
 
 	@Before("execution(public * edu.sjsu.cmpe275.aop.SecretService.shareSecret(..))")
 	public void validShareSecret(JoinPoint joinPoint) {
-		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		for (Object arg: args) {
 			if (arg == null || arg.toString().length() == 0) {
@@ -58,7 +58,7 @@ public class ValidationAspect {
 
 	@Before("execution(public * edu.sjsu.cmpe275.aop.SecretService.unshareSecret(..))")
 	public void validUnshareSecret(JoinPoint joinPoint) {
-		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Doing validation prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		for (Object arg: args) {
 			if (arg == null || arg.toString().length() == 0) {

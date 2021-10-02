@@ -12,6 +12,7 @@ public class SecretStatsImpl implements SecretStats {
 	public static Map<UUID, Set<String>> secretAllowReadMap = new HashMap<>();
 	// un-shared user is not removed. include secret owner.
 	public static Map<UUID, Set<String>> secretReadMap = new HashMap<>();
+	public static Map<UUID, String> secretContentMap = new HashMap<>();
 
 	// for stats
 	public static int lengthOfLongestSecret = 0;
@@ -32,6 +33,9 @@ public class SecretStatsImpl implements SecretStats {
 		if (!secretReadMap.isEmpty()) {
 			secretReadMap.clear();
 		}
+		if (!secretContentMap.isEmpty()) {
+			secretContentMap.clear();
+		}
 		lengthOfLongestSecret = 0;
 		if (!userInboundShareMap.isEmpty()) {
 			userInboundShareMap.clear();
@@ -39,8 +43,6 @@ public class SecretStatsImpl implements SecretStats {
 		if (!userOutReshareMap.isEmpty()) {
 			userOutReshareMap.clear();
 		}
-		//TODO: clear secrets Map in SecretServiceImpl?
-		
 	}
 
 	@Override
@@ -51,11 +53,11 @@ public class SecretStatsImpl implements SecretStats {
 	@Override
 	public String getMostTrustedUser() {
 		String mostTrustedUser = null;
-		int mostInboundShareCount = 0;
+		long mostInboundShareCount = 0;
 		for (String user: userInboundShareMap.keySet()) {
 			Set<String> inboundSet = userInboundShareMap.get(user);
 			if ((inboundSet.size() > mostInboundShareCount) || (inboundSet.size() == mostInboundShareCount
-					&& user.compareToIgnoreCase(mostTrustedUser) < 0)) {
+					&& user.compareTo(mostTrustedUser) < 0)) {
 				mostTrustedUser = user;
 				mostInboundShareCount = inboundSet.size();
 			}
@@ -69,15 +71,16 @@ public class SecretStatsImpl implements SecretStats {
 		String worstSecretKeeper = null;
 		double highestLeakScore = -1;
 		for (String user: userInboundShareMap.keySet()) {
-			int inboundCount = userInboundShareMap.get(user).size();
-			int outboundCount = userOutReshareMap.containsKey(user) ? userOutReshareMap.get(user).size() : 0;
+			long inboundCount = userInboundShareMap.get(user).size();
+			long outboundCount = userOutReshareMap.containsKey(user) ? userOutReshareMap.get(user).size() : 0;
 			double leakScore = outboundCount * 1.0 / inboundCount;
 			if (leakScore > highestLeakScore || (leakScore == highestLeakScore
-					&& user.compareToIgnoreCase(worstSecretKeeper) < 0)) {
+					&& user.compareTo(worstSecretKeeper) < 0)) {
 				worstSecretKeeper = user;
 				highestLeakScore = leakScore;
 			}
 		}
+
 		System.out.println("Highest leak score: " + highestLeakScore);
 		return worstSecretKeeper;
 	}
@@ -85,11 +88,14 @@ public class SecretStatsImpl implements SecretStats {
 	@Override
 	public UUID getBestKnownSecret() {
 		UUID bestKnownSecret = null;
-		int highestReadCount = 0;
+		long highestReadCount = 0;
 		for (UUID secret: secretReadMap.keySet()) {
-			int readCount = secretReadMap.get(secret).size();
+			long readCount = secretReadMap.get(secret).size();
 			if (readCount > 1 && readCount > highestReadCount) {
 				highestReadCount = readCount;
+				bestKnownSecret = secret;
+			} else if (readCount > 1 && readCount == highestReadCount &&
+					secretContentMap.get(secret).compareTo(secretContentMap.get(bestKnownSecret)) < 0) {
 				bestKnownSecret = secret;
 			}
 		}

@@ -24,13 +24,11 @@ public class StatsAspect {
 
 	@Autowired SecretStatsImpl stats;
 
-	//TODO:stats.resetStats();
-
 	@AfterReturning(
 			pointcut = "execution(public * edu.sjsu.cmpe275.aop.SecretService.createSecret(..))",
 			returning="result")
 	public void afterCreateSecret(JoinPoint joinPoint, Object result) {
-		System.out.printf("Stats After the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Stats After the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		UUID secretId = (UUID)result;
 		String creator = joinPoint.getArgs()[0].toString();
 		String secretContent = joinPoint.getArgs()[1].toString();
@@ -50,12 +48,15 @@ public class StatsAspect {
 			pointcut = "execution(public * edu.sjsu.cmpe275.aop.SecretService.readSecret(..))",
 			returning="result")
 	public void afterReadSecret(JoinPoint joinPoint, Object result) {
-		System.out.printf("Stats After the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Stats After the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		String userId = (String) args[0];
 		UUID secretId = (UUID) args[1];
+		String content = (String) result;
 		// add user to secretReadMap
 		SecretStatsImpl.secretReadMap.get(secretId).add(userId);
+		// add secret content to secretContentMap
+		SecretStatsImpl.secretContentMap.putIfAbsent(secretId, content);
 	}
 
 	@AfterReturning( pointcut = "execution(public * edu.sjsu.cmpe275.aop.SecretService.shareSecret(..))")
@@ -82,7 +83,7 @@ public class StatsAspect {
 
 	@AfterReturning( pointcut = "execution(public * edu.sjsu.cmpe275.aop.SecretService.unshareSecret(..))")
 	public void afterUnshareSecret(JoinPoint joinPoint) {
-		System.out.printf("Stats After the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Stats After the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 		Object[] args = joinPoint.getArgs();
 		String targetUserId = (String) args[2];
 		UUID secretId = (UUID) args[1];

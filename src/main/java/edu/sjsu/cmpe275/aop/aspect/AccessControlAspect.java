@@ -20,7 +20,7 @@ public class AccessControlAspect {
 
 	@Before("execution(public * edu.sjsu.cmpe275.aop.SecretService.readSecret(..))")
 	public void readAccessCheck(JoinPoint joinPoint) {
-		System.out.printf("Access control prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Access control prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 
 		Object[] args = joinPoint.getArgs();
 		String userId = (String) args[0];
@@ -35,7 +35,7 @@ public class AccessControlAspect {
 
 	@Before("execution(public * edu.sjsu.cmpe275.aop.SecretService.shareSecret(..))")
 	public void shareAccessCheck(JoinPoint joinPoint) {
-		System.out.printf("Access control prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Access control prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 
 		Object[] args = joinPoint.getArgs();
 		String userId = (String) args[0];
@@ -49,7 +49,7 @@ public class AccessControlAspect {
 
 	@Before("execution(public * edu.sjsu.cmpe275.aop.SecretService.unshareSecret(..))")
 	public void unshareAccessCheck(JoinPoint joinPoint) {
-		System.out.printf("Access control prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
+//		System.out.printf("Access control prior to the executuion of the metohd %s\n", joinPoint.getSignature().getName());
 
 		Object[] args = joinPoint.getArgs();
 		String userId = (String) args[0];
