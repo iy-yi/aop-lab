@@ -190,6 +190,15 @@ public class SecretServiceTest {
         secretService.shareSecret("Bob", fault, "Carl");
     }
 
+    @Test(expected = NotAuthorizedException.class)
+    public void test_AC_share_readBeforeUnshare() throws IOException {
+        UUID secret = secretService.createSecret("Alice", "This is a test secret.");
+        secretService.shareSecret("Alice", secret, "Bob");
+        secretService.readSecret("Bob", secret);
+        secretService.unshareSecret("Alice", secret, "Bob");
+        secretService.shareSecret("Bob", secret, "Carl");
+    }
+
     @Test
     public void test_share_owner() throws IOException {
         UUID secret = secretService.createSecret("Alice", "This is a test secret.");
@@ -204,14 +213,6 @@ public class SecretServiceTest {
         secretService.shareSecret("Bob", secret, "Carl");
     }
 
-    @Test
-    public void test_share_readBeforeUnshare() throws IOException {
-        UUID secret = secretService.createSecret("Alice", "This is a test secret.");
-        secretService.shareSecret("Alice", secret, "Bob");
-        secretService.readSecret("Bob", secret);
-        secretService.unshareSecret("Alice", secret, "Bob");
-        secretService.shareSecret("Bob", secret, "Carl");
-    }
 
     // Unshare secret
     @Test(expected = IllegalArgumentException.class)

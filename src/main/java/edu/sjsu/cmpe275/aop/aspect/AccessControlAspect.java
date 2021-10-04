@@ -37,6 +37,13 @@ public class AccessControlAspect {
 		String userId = (String) args[0];
 		UUID secretId = (UUID) args[1];
 
+		// not authorized to share if the user cannot read at this time
+		Set<String> allowReadSet = SecretStatsImpl.secretAllowReadMap.getOrDefault(secretId, null);
+		if (allowReadSet == null || !allowReadSet.contains(userId)) {
+			throw new NotAuthorizedException("Not Authorized to share");
+		}
+
+		// not authorized to share if the user has not read
 		Set<String> readSet = SecretStatsImpl.secretReadMap.getOrDefault(secretId, null);
 		if (readSet == null || !readSet.contains(userId)) {
 			throw new NotAuthorizedException("Not Authorized to share");
